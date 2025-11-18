@@ -1,0 +1,94 @@
+replicaCount: 3
+
+image:
+  repository: aadan1lov/muffin-wallet
+  tag: "1.1.0"
+  pullPolicy: Always
+
+# Порт внутри контейнера
+containerPort: 8081
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8081
+
+# Пробы как в all.yaml
+livenessProbe:
+  path: "/actuator/health/liveness"
+  initialDelaySeconds: 30
+  periodSeconds: 5
+
+readinessProbe:
+  path: "/actuator/health/readiness"
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Содержимое ConfigMap-ов
+config:
+  # Это ConfigMap с application.yaml
+  applicationYaml: |
+    ---
+    server:
+      port: 8081
+
+    spring:
+      datasource:
+        url: jdbc:postgresql://muffin-wallet-postgres:5432/muffin_wallet
+        username: muffin-wallet
+
+    currency:
+      service:
+        url: http://muffin-currency:8083/rate
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      endpoint:
+        health:
+          probes:
+            enabled: true
+          show-details: always
+
+  # Это второй ConfigMap с env
+  env:
+    JDK_JAVA_OPTIONS: "-Dspring.config.additional-location=/app/config/application.yaml"
+
+# Secret с паролем (уже в base64 из all.yaml)
+secret:
+  passwordB64: "bXVmZmluLXdhbGxldA=="
+
+# Параметры Ingress как в all.yaml
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "muffin-wallet.com"
+  path: "/"
+  pathType: "Prefix"
+
+db:
+  name: "muffin_wallet"
+  user: "muffin-wallet"
+  password: "muffin-wallet"
+
+postgresql:
+  enabled: true
+  image: "postgres:16"
+  port: 5432
+
+
+migrations:
+  enabled: true
+
+  image:
+    repository: liquibase/liquibase
+    tag: "5.0.1"
+    pullPolicy: IfNotPresent
+
+  db:
+    url: jdbc:postgresql://muffin-wallet-postgres:5432/muffin_wallet
+    username: muffin-wallet
+    passwordSecretName: muffin-wallet
+    passwordSecretKey: SPRING_DATASOURCE_PASSWORD
