@@ -5,4 +5,6 @@ metadata:
   labels:
     {{- include "muffin-wallet.labels" . | nindent 4 }}
 data:
-  JDK_JAVA_OPTIONS: {{ .Values.config.env.JDK_JAVA_OPTIONS | quote }}
+  {{- $config := .Values.config | default dict }}
+  {{- $env := $config.env | default dict }}
+  JDK_JAVA_OPTIONS: {{ $env.JDK_JAVA_OPTIONS | default "" | quote }}

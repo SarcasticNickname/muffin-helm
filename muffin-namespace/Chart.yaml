@@ -1,0 +1,6 @@
+apiVersion: v2
+name: muffin-namespace
+description: Creates namespace for muffin microservices and enables Istio sidecar injection
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

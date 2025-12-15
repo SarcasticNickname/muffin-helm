@@ -1,0 +1,19 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-wallet-to-currency
+spec:
+  selector:
+    matchLabels:
+      app: muffin-currency
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - {{ printf "cluster.local/ns/%s/sa/%s" .Release.Namespace .Values.security.allowCurrencyFromWalletServiceAccount | quote }}
+      to:
+        - operation:
+            methods: ["GET"]
+            paths:
+              - {{ printf "%s*" .Values.currency.pathPrefix | quote }}

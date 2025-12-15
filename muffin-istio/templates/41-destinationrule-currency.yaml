@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: muffin-currency-dr
+spec:
+  host: {{ .Values.currency.serviceHost | quote }}
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: {{ .Values.resilience.currency.connectionPool.tcp.maxConnections }}
+      http:
+        http1MaxPendingRequests: {{ .Values.resilience.currency.connectionPool.http.http1MaxPendingRequests }}
+        maxRequestsPerConnection: {{ .Values.resilience.currency.connectionPool.http.maxRequestsPerConnection }}
+        maxRetries: {{ .Values.resilience.currency.connectionPool.http.maxRetries }}
+    outlierDetection:
+      consecutive5xxErrors: {{ .Values.resilience.currency.outlierDetection.consecutive5xxErrors }}
+      interval: {{ .Values.resilience.currency.outlierDetection.interval | quote }}
+      baseEjectionTime: {{ .Values.resilience.currency.outlierDetection.baseEjectionTime | quote }}
+      maxEjectionPercent: {{ .Values.resilience.currency.outlierDetection.maxEjectionPercent }}

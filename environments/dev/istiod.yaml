@@ -1,0 +1,16 @@
+profile: demo
+
+meshConfig:
+  enableTracing: true
+
+  extensionProviders:
+    - name: zipkin
+      zipkin:
+        service: tracing.istio-system.svc.cluster.local
+        port: 9411
+
+  defaultConfig:
+    tracing:
+      sampling: 100
+      zipkin:
+        address: tracing.istio-system:9411

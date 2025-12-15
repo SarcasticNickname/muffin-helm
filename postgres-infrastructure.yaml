@@ -1,0 +1,51 @@
+# В домашке прописано, что соединение с базой должно быть внешним,
+# Это манифест для внешней базы, она в отдельном namespace
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-db
+  labels:
+    #здесь НЕТ istio-injection, Istio не лезет внутрь базы
+    istio-injection: disabled
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: external-db
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: external-db
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_USER
+              value: "muffin-wallet"
+            - name: POSTGRES_PASSWORD
+              value: "muffin-wallet"
+            - name: POSTGRES_DB
+              value: "muffin_wallet"
+          ports:
+            - containerPort: 5432

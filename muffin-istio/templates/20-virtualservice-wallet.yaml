@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: muffin-wallet-ingress
+spec:
+  hosts:
+    - {{ .Values.wallet.host | quote }}
+  gateways:
+    - muffin-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: {{ .Values.wallet.serviceHost | quote }}
+            port:
+              number: {{ .Values.wallet.servicePort }}
+      timeout: {{ .Values.wallet.timeout | quote }}
+      retries:
+        attempts: {{ .Values.wallet.retries.attempts }}
+        perTryTimeout: {{ .Values.wallet.retries.perTryTimeout | quote }}
+        retryOn: {{ .Values.wallet.retries.retryOn | quote }}

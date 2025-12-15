@@ -1,0 +1,44 @@
+wallet:
+  host: wallet.example.com
+  serviceHost: muffin-wallet.muffin.svc.cluster.local
+  servicePort: 80
+  timeout: 15s
+  retries:
+    attempts: 2
+    perTryTimeout: 5s
+    retryOn: 5xx,connect-failure,refused-stream,reset
+
+currency:
+  serviceName: muffin-currency
+  serviceHost: muffin-currency.muffin.svc.cluster.local
+  servicePort: 8083
+  containerPort: 8080
+  pathPrefix: /rate
+  timeout: 2s
+  retries:
+    attempts: 3
+    perTryTimeout: 1s
+    retryOn: 5xx,connect-failure,refused-stream,reset
+
+security:
+  mtlsMode: STRICT
+  allowCurrencyFromWalletServiceAccount: muffin-wallet
+
+resilience:
+  currency:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 5s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+
+externalPostgres:
+  host: db.example.com
+  port: 5432

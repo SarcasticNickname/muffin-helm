@@ -1,0 +1,82 @@
+environments:
+  dev: {}
+
+---
+helmDefaults:
+  createNamespace: true
+  wait: true
+  timeout: 600
+
+---
+repositories:
+  # Official Istio Helm repo
+  - name: istio
+    url: https://istio-release.storage.googleapis.com/charts
+
+---
+releases:
+  # 0) Istio (install via Helm)
+  - name: istio-base
+    namespace: istio-system
+    chart: istio/base
+    version: 1.28.1
+
+  - name: istiod
+    namespace: istio-system
+    chart: istio/istiod
+    version: 1.28.1
+    needs:
+      - istio-system/istio-base
+    values:
+      - ./environments/dev/istiod.yaml
+
+  - name: istio-ingressgateway
+    namespace: istio-system
+    chart: istio/gateway
+    version: 1.28.1
+    needs:
+      - istio-system/istiod
+    values:
+      - ./environments/dev/istio-ingressgateway.yaml
+
+  # 1) Observability (Prometheus + Kiali + Jaeger)
+  - name: muffin-observability
+    namespace: istio-system
+    chart: ./muffin-observability
+    needs:
+      - istio-system/istiod
+
+  # 2) Namespace where apps live (and injection enabled)
+  - name: muffin-namespace
+    namespace: default
+    chart: ./muffin-namespace
+    needs:
+      - istio-system/istiod
+
+  # 3) Applications
+  - name: muffin-wallet
+    namespace: muffin
+    chart: ./muffin-wallet
+    wait: false
+    needs:
+      - default/muffin-namespace
+    values:
+      - ./environments/dev/muffin-wallet.yaml
+
+  - name: muffin-currency
+    namespace: muffin
+    chart: ./muffin-currency
+    wait: false
+    needs:
+      - default/muffin-namespace
+    values:
+      - ./environments/dev/muffin-currency.yaml
+
+  # 4) Istio config for the apps (Gateway, VS, mTLS, AuthorizationPolicy, retries/CB, ServiceEntry)
+  - name: muffin-istio
+    namespace: muffin
+    chart: ./muffin-istio
+    needs:
+      - istio-system/istio-ingressgateway
+      - muffin/muffin-wallet
+      - muffin/muffin-currency

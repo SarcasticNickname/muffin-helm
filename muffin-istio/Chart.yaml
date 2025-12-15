@@ -1,0 +1,6 @@
+apiVersion: v2
+name: muffin-istio
+description: Istio configuration for muffin microservices (Gateway, VirtualService, mTLS, AuthZ, Resilience, ServiceEntry)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

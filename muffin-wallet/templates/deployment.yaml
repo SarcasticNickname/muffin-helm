@@ -12,10 +12,15 @@ spec:
       app: {{ include "muffin-wallet.name" . }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         {{- include "muffin-wallet.labels" . | nindent 8 }}
         app: {{ include "muffin-wallet.name" . }}
     spec:
+      serviceAccountName: {{ include "muffin-wallet.serviceAccountName" . }}
       volumes:
         - name: application-config-volume
           configMap:

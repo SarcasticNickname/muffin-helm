@@ -1,0 +1,9 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: external-postgres-dr
+spec:
+  host: {{ .Values.externalPostgres.host | quote }}
+  trafficPolicy:
+    tls:
+      mode: DISABLE

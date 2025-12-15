@@ -16,6 +16,7 @@ spec:
         {{- include "muffin-currency.labels" . | nindent 8 }}
         app: {{ include "muffin-currency.name" . }}
     spec:
+      serviceAccountName: {{ include "muffin-currency.serviceAccountName" . }}
       containers:
         - name: {{ include "muffin-currency.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
