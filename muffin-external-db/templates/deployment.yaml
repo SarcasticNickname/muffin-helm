@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-postgres
+  namespace: {{ .Values.namespace.name | quote }}
+  labels:
+    app: external-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-postgres
+  template:
+    metadata:
+      labels:
+        app: external-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.port }}
+          envFrom:
+            - secretRef:
+                name: external-postgres-auth
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+{{- toYaml .Values.postgres.resources | nindent 12 }}
+      volumes:
+        - name: pgdata
+          emptyDir: {}

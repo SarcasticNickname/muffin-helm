@@ -4,11 +4,10 @@ metadata:
   name: {{ include "muffin-currency.fullname" . }}
   labels:
     {{- include "muffin-currency.labels" . | nindent 4 }}
-    app: {{ include "muffin-currency.name" . }}
 spec:
   type: {{ .Values.service.type }}
   selector:
-    app: {{ include "muffin-currency.name" . }}
+    {{- include "muffin-currency.selectorLabels" . | nindent 4 }}
   ports:
     - protocol: TCP
       port: {{ .Values.service.port }}

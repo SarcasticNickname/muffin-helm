@@ -37,8 +37,10 @@ readinessProbe:
   periodSeconds: 5
   failureThreshold: 3
 
-
 podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8081"
+  prometheus.io/path: "/actuator/prometheus"
   proxy.istio.io/config: |
     proxyMetadata:
       ISTIO_META_DNS_CAPTURE: "true"
@@ -54,8 +56,13 @@ db:
 
 config:
   applicationYaml: |
+    # (Не обязательно) application.yaml для наглядности.
     spring.datasource.url: "jdbc:postgresql://db.example.com:5432/muffin_wallet"
     spring.datasource.username: "muffin-wallet"
     spring.datasource.password: "muffin-wallet"
     spring.jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
     currency.service.url: "http://muffin-currency.muffin.svc.cluster.local:8083"
+
+  env:
+    SPRING_CONFIG_ADDITIONAL_LOCATION: "/app/config/"
+    CURRENCY_SERVICE_URL: "http://muffin-currency.muffin.svc.cluster.local:8083"

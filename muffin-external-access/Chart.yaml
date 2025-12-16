@@ -1,0 +1,6 @@
+apiVersion: v2
+name: muffin-external-access
+description: Istio external access objects that must exist before apps start
+type: application
+version: 0.1.0
+appVersion: "1"

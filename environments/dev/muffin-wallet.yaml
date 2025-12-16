@@ -1,2 +1,7 @@
 service:
   type: ClusterIP
+
+config:
+  env:
+    SPRING_CONFIG_ADDITIONAL_LOCATION: "/app/config/"
+    CURRENCY_SERVICE_URL: "http://muffin-currency:8083"

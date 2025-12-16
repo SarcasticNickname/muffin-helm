@@ -1,0 +1,6 @@
+apiVersion: v2
+name: muffin-external-db
+description: "External PostgreSQL database for Muffin homework"
+type: application
+version: 0.1.0
+appVersion: "16"

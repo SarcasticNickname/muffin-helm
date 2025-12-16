@@ -3,7 +3,19 @@ kind: DestinationRule
 metadata:
   name: muffin-wallet-dr
 spec:
-  host: {{ .Values.wallet.serviceHost | quote }}
+  host: {{ printf "%s.%s.svc.cluster.local" .Values.wallet.serviceName .Release.Namespace | quote }}
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: {{ .Values.resilience.wallet.connectionPool.tcp.maxConnections }}
+      http:
+        http1MaxPendingRequests: {{ .Values.resilience.wallet.connectionPool.http.http1MaxPendingRequests }}
+        maxRequestsPerConnection: {{ .Values.resilience.wallet.connectionPool.http.maxRequestsPerConnection }}
+        maxRetries: {{ .Values.resilience.wallet.connectionPool.http.maxRetries }}
+    outlierDetection:
+      consecutive5xxErrors: {{ .Values.resilience.wallet.outlierDetection.consecutive5xxErrors }}
+      interval: {{ .Values.resilience.wallet.outlierDetection.interval | quote }}
+      baseEjectionTime: {{ .Values.resilience.wallet.outlierDetection.baseEjectionTime | quote }}
+      maxEjectionPercent: {{ .Values.resilience.wallet.outlierDetection.maxEjectionPercent }}

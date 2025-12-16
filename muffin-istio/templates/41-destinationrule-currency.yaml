@@ -3,7 +3,7 @@ kind: DestinationRule
 metadata:
   name: muffin-currency-dr
 spec:
-  host: {{ .Values.currency.serviceHost | quote }}
+  host: {{ printf "%s.%s.svc.cluster.local" .Values.currency.serviceName .Release.Namespace | quote }}
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL

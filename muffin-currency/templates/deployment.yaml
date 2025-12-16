@@ -4,17 +4,19 @@ metadata:
   name: {{ include "muffin-currency.fullname" . }}
   labels:
     {{- include "muffin-currency.labels" . | nindent 4 }}
-    app: {{ include "muffin-currency.name" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "muffin-currency.name" . }}
+      {{- include "muffin-currency.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.targetPort }}"
+        prometheus.io/path: "/actuator/prometheus"
       labels:
         {{- include "muffin-currency.labels" . | nindent 8 }}
-        app: {{ include "muffin-currency.name" . }}
     spec:
       serviceAccountName: {{ include "muffin-currency.serviceAccountName" . }}
       containers:

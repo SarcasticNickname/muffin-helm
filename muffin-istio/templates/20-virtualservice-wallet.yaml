@@ -13,7 +13,7 @@ spec:
             prefix: /
       route:
         - destination:
-            host: {{ .Values.wallet.serviceHost | quote }}
+            host: {{ printf "%s.%s.svc.cluster.local" .Values.wallet.serviceName .Release.Namespace | quote }}
             port:
               number: {{ .Values.wallet.servicePort }}
       timeout: {{ .Values.wallet.timeout | quote }}

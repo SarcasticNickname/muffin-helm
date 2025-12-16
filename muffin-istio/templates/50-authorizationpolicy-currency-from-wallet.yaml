@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: muffin-currency
+      app.kubernetes.io/name: muffin-currency
   action: ALLOW
   rules:
     - from:

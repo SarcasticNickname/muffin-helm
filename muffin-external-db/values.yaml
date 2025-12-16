@@ -1,0 +1,20 @@
+namespace:
+  name: external-db
+  labels:
+    istio-injection: "disabled"
+
+postgres:
+  image: "postgres:16-alpine"
+  port: 5432
+
+  db: "muffin_wallet"
+  user: "muffin-wallet"
+  password: "muffin-wallet"
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

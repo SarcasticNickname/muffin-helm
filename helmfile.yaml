@@ -3,28 +3,31 @@ environments:
 
 ---
 helmDefaults:
-  createNamespace: true
+  createNamespace: false
   wait: true
   timeout: 600
+  atomic: true
+  cleanupOnFail: true
 
 ---
 repositories:
-  # Official Istio Helm repo
   - name: istio
     url: https://istio-release.storage.googleapis.com/charts
 
 ---
 releases:
-  # 0) Istio (install via Helm)
+  # 0) Istio
   - name: istio-base
     namespace: istio-system
     chart: istio/base
     version: 1.28.1
+    createNamespace: true
 
   - name: istiod
     namespace: istio-system
     chart: istio/istiod
     version: 1.28.1
+    createNamespace: true
     needs:
       - istio-system/istio-base
     values:
@@ -34,49 +37,62 @@ releases:
     namespace: istio-system
     chart: istio/gateway
     version: 1.28.1
+    createNamespace: true
     needs:
       - istio-system/istiod
     values:
       - ./environments/dev/istio-ingressgateway.yaml
 
-  # 1) Observability (Prometheus + Kiali + Jaeger)
   - name: muffin-observability
     namespace: istio-system
     chart: ./muffin-observability
+    createNamespace: true
     needs:
       - istio-system/istiod
 
-  # 2) Namespace where apps live (and injection enabled)
+  # 1) Namespace "muffin" создаём ЧАРТОМ (не --create-namespace)
   - name: muffin-namespace
-    namespace: default
+    namespace: istio-system
     chart: ./muffin-namespace
+    createNamespace: false
     needs:
       - istio-system/istiod
+
+  # 2) External Postgres
+  - name: external-db
+    namespace: external-db
+    chart: ./muffin-external-db
+    createNamespace: true
+    needs:
+      - istio-system/muffin-namespace
+
+  - name: muffin-external-access
+    namespace: muffin
+    chart: ./muffin-external-access
+    needs:
+      - external-db/external-db
+      - istio-system/muffin-namespace
+
+  - name: muffin-istio
+    namespace: muffin
+    chart: ./muffin-istio
+    needs:
+      - istio-system/istio-ingressgateway
+      - muffin/muffin-external-access
 
   # 3) Applications
   - name: muffin-wallet
     namespace: muffin
     chart: ./muffin-wallet
-    wait: false
     needs:
-      - default/muffin-namespace
+      - muffin/muffin-istio
     values:
       - ./environments/dev/muffin-wallet.yaml
 
   - name: muffin-currency
     namespace: muffin
     chart: ./muffin-currency
-    wait: false
     needs:
-      - default/muffin-namespace
+      - muffin/muffin-istio
     values:
       - ./environments/dev/muffin-currency.yaml
-
-  # 4) Istio config for the apps (Gateway, VS, mTLS, AuthorizationPolicy, retries/CB, ServiceEntry)
-  - name: muffin-istio
-    namespace: muffin
-    chart: ./muffin-istio
-    needs:
-      - istio-system/istio-ingressgateway
-      - muffin/muffin-wallet
-      - muffin/muffin-currency

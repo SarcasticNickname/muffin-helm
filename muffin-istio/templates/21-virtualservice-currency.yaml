@@ -3,17 +3,16 @@ kind: VirtualService
 metadata:
   name: muffin-currency-traffic
 spec:
-  # Wallet calls currency by service name; include both short and FQDN hosts
   hosts:
     - {{ .Values.currency.serviceName | quote }}
-    - {{ .Values.currency.serviceHost | quote }}
+    - {{ printf "%s.%s.svc.cluster.local" .Values.currency.serviceName .Release.Namespace | quote }}
   http:
     - match:
         - uri:
             prefix: {{ .Values.currency.pathPrefix | quote }}
       route:
         - destination:
-            host: {{ .Values.currency.serviceHost | quote }}
+            host: {{ printf "%s.%s.svc.cluster.local" .Values.currency.serviceName .Release.Namespace | quote }}
             port:
               number: {{ .Values.currency.servicePort }}
       timeout: {{ .Values.currency.timeout | quote }}

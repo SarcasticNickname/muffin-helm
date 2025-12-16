@@ -1,4 +1,3 @@
-# Source: https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/jaeger.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,7 +42,6 @@ spec:
       port: 80
       protocol: TCP
       targetPort: 16686
-    # Note: Change port name if you add '--query.grpc.tls.enabled=true'
     - name: grpc-query
       port: 16685
       protocol: TCP
