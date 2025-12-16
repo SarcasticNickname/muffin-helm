@@ -13,3 +13,5 @@ spec:
   resolution: DNS
   endpoints:
     - address: postgres.external-db.svc.cluster.local
+      ports:
+        tcp-postgres: 5432

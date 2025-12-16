@@ -3,7 +3,7 @@ kind: DestinationRule
 metadata:
   name: external-postgres-dr
 spec:
-  host: {{ .Values.externalPostgres.host | quote }}
+  host: db.example.com
   trafficPolicy:
     tls:
       mode: DISABLE
